@@ -102,7 +102,7 @@ async function sendMessage() {
 
     } catch (error) {
         removeTypingIndicator(typingId);
-        addMessageToChat('assistant', `❌ Feil: ${error.message}\n\nSørg for at Ollama kjører og at llama3.2-modellen er installert.`);
+        addMessageToChat('assistant', `❌ Error: ${error.message}\n\nMake sure Ollama is running and the llama3.2 model is installed.`);
         console.error('Error:', error);
     } finally {
         // Re-enable send button and input
@@ -135,7 +135,7 @@ function addTypingIndicator() {
 
     typingDiv.innerHTML = `
         <div class="typing-content">
-            <span class="typing-text">Genererer søknad</span>
+            <span class="typing-text">Generating application</span>
             <div class="typing-dots">
                 <span></span>
                 <span></span>
@@ -160,7 +160,7 @@ function removeTypingIndicator(typingId) {
 
 async function resetConversation() {
     // Custom confirmation dialog would be better, but using native for simplicity
-    const shouldReset = confirm('Er du sikker på at du vil tilbakestille samtalen?');
+    const shouldReset = confirm('Are you sure you want to reset the conversation?');
 
     if (!shouldReset) {
         return;
@@ -189,30 +189,30 @@ async function resetConversation() {
                         <circle cx="30" cy="18" r="2" fill="currentColor"/>
                     </svg>
                 </div>
-                <h2 class="welcome-title">Velkommen til Søknad AI</h2>
-                <p class="welcome-text">Jeg genererer skreddersydde jobbsøknader basert på Tarek Leins erfaring innen cybersikkerhet, DevOps, og AI-utvikling.</p>
+                <h2 class="welcome-title">Welcome to Application AI</h2>
+                <p class="welcome-text">I generate tailored job applications in English based on Tarek Lein's experience in cybersecurity, DevOps, and AI development.</p>
                 <div class="welcome-features">
                     <div class="feature-item">
                         <span class="feature-icon">✦</span>
-                        <span>Tilpasset norske stillingsbeskrivelser</span>
+                        <span>Customized for Norwegian job postings</span>
                     </div>
                     <div class="feature-item">
                         <span class="feature-icon">✦</span>
-                        <span>Profesjonell tone og struktur</span>
+                        <span>Professional tone and structure</span>
                     </div>
                     <div class="feature-item">
                         <span class="feature-icon">✦</span>
-                        <span>Basert på reell erfaring og prosjekter</span>
+                        <span>Based on real experience and projects</span>
                     </div>
                 </div>
-                <p class="welcome-prompt">Lim inn stillingsannonsen nedenfor for å komme i gang →</p>
+                <p class="welcome-prompt">Paste the job posting below to get started →</p>
             </div>
         `;
 
         isFirstMessage = true;
 
     } catch (error) {
-        alert('Feil ved tilbakestilling: ' + error.message);
+        alert('Error resetting conversation: ' + error.message);
         console.error('Error:', error);
     }
 }
