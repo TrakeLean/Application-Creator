@@ -6,6 +6,15 @@ import os
 app = Flask(__name__, static_folder='static')
 CORS(app)
 
+# Load technical skills from file
+def load_skills():
+    skills_path = os.path.join('INFO', 'skills.md')
+    try:
+        with open(skills_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return "ERROR: INFO/skills.md not found. Cannot verify technical skills."
+
 # System prompt for the AI
 SYSTEM_PROMPT = """SYSTEM INSTRUCTIONS:
 
@@ -51,6 +60,20 @@ GitHub Projects (mention only if relevant to the job requirements):
 - Discord Valorant Rank Bot — automation + API integration (Python, Discord API)
 
 Only reference these projects to strengthen Tarek's fit for the specific job and especially to show his developer drive and passion.
+
+CRITICAL - TECHNICAL SKILLS:
+Below is the COMPLETE and AUTHORITATIVE list of Tarek's technical skills from INFO/skills.md.
+
+YOU MUST ONLY mention skills that appear in this list. This is NON-NEGOTIABLE.
+
+{SKILLS_CONTENT}
+
+STRICT RULES:
+- ONLY mention skills explicitly listed above
+- DO NOT claim knowledge of any programming language, framework, or tool not in this list
+- DO NOT assume he knows related technologies (e.g., if Python is listed, don't assume Django unless it's also listed)
+- If a job requires skills not in this list, acknowledge the gap honestly or focus on transferable skills
+- Never hallucinate technical competencies
 
 
 -------------------------------------
@@ -146,7 +169,7 @@ CRITICAL: ANTI-HALLUCINATION RULES
 -------------------------------------
 
 YOU MUST ONLY USE INFORMATION FROM:
-1. The candidate information section above
+1. The candidate information section above (including the technical skills list)
 2. The job advertisement provided by the user
 3. Tarek's CV if mentioned
 
@@ -154,12 +177,16 @@ YOU MUST NEVER:
 - Invent projects that are not listed above
 - Fabricate work experience or job titles
 - Create fictional achievements or metrics
-- Add technologies or skills not mentioned in the prompt
+- Add technologies or skills not mentioned in the technical skills list above
+- Mention ANY programming language, framework, tool, or technology not in the technical skills list
 - Claim professional development experience (his dev experience is from hobbies/education only)
 - Make up company names, team sizes, or project details
 - Invent certifications, awards, or credentials
+- Assume knowledge of related technologies not explicitly listed in the technical skills list above
 
 If you don't have specific information, write generally or omit it. DO NOT FILL GAPS WITH MADE-UP DETAILS.
+
+REMEMBER: The technical skills list above is COMPLETE and AUTHORITATIVE. Never claim skills not listed there.
 
 -------------------------------------
 PROHIBITED
@@ -217,11 +244,15 @@ def chat():
             'content': user_message
         })
 
+        # Load skills and inject into system prompt
+        skills_content = load_skills()
+        current_system_prompt = SYSTEM_PROMPT.replace('{SKILLS_CONTENT}', skills_content)
+
         # Prepare messages for Ollama (include system prompt)
         messages = [
             {
                 'role': 'system',
-                'content': SYSTEM_PROMPT
+                'content': current_system_prompt
             }
         ] + conversations[session_id]
 

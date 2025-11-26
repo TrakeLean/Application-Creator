@@ -8,6 +8,52 @@
 
 ---
 
+## 🔥 Quick Start - Context for Next Session
+
+**What This Project Does:**
+Generates job applications in English for Tarek Lein (cybersecurity engineer transitioning to software dev) using Ollama/llama3.2.
+
+**Critical System:**
+✅ **Skills file (`INFO/skills.md`)** is dynamically loaded into AI prompt on every request
+✅ AI can ONLY mention skills listed in that file - prevents hallucination
+✅ No restart needed when updating skills
+
+**Key Files:**
+- `INFO/skills.md` - Edit to update technical skills (instant effect)
+- `INFO/TarekLeinCV.docx` - Candidate CV
+- `INFO/Resultater_fra_Vitnemalsportalen.pdf` - Bachelor degree courses
+- `app.py` - Backend with `load_skills()` function (line 10-16) and injection logic (line 248-249)
+
+**Current State:**
+✅ Skills loading implemented
+✅ Anti-hallucination rules enforced
+✅ INFO folder structure organized
+⏸️ Changes not yet committed to git
+
+---
+
+## Recent Changes (2025-01-26)
+
+### INFO Folder Structure
+- Moved `TarekLeinCV.docx` to `INFO/` folder
+- Added `Resultater_fra_Vitnemalsportalen.pdf` - bachelor degree course results
+- Created `INFO/skills.md` - comprehensive technical skills reference
+
+### Dynamic Skills Loading Implementation
+- **Critical Feature:** AI now dynamically loads technical skills from `INFO/skills.md`
+- **File:** `app.py` - Added `load_skills()` function (line 10-16)
+- **Injection Point:** System prompt uses `{SKILLS_CONTENT}` placeholder (line 69)
+- **Runtime:** Skills loaded and injected on every API request (line 248-249)
+- **Impact:** AI cannot hallucinate or claim skills not in the file
+- **Benefit:** Update `INFO/skills.md` anytime - changes apply immediately without server restart
+
+### System Prompt Enhancements
+- Added "CRITICAL - TECHNICAL SKILLS" section with strict validation rules
+- Enhanced "ANTI-HALLUCINATION RULES" to reference skills file multiple times
+- Multiple defensive layers to prevent false skill claims
+
+---
+
 ## Architecture
 
 ### Backend (Flask)
@@ -16,6 +62,10 @@
 - **AI Integration:** Ollama Python library
 - **Model:** llama3.2 (2GB, local)
 - **Session Management:** In-memory conversation history per session ID
+- **Skills Loading:** Dynamic loading from `INFO/skills.md` on every request
+  - Function: `load_skills()` reads and returns skills file content
+  - Injection: Skills injected into system prompt via placeholder replacement
+  - Error handling: Returns error message if skills file not found
 
 ### Frontend (Modern Dark UI)
 - **Design Theme:** Minimalist technical dark (following frontend_chatbot_design skill)
@@ -33,13 +83,33 @@
    - User handles Norwegian translation manually
    - Technical terms stay in English (AI, DevOps, cloud, etc.)
 
-2. **Anti-Hallucination Rules**
-   - Critical section in system prompt to prevent fabrication
-   - AI must only use information from prompt and CV
-   - Cannot invent projects, experience, or achievements
-   - Coding experience is from hobby projects + bachelor degree ONLY (not professional dev roles)
+2. **Dynamic Skills Loading System (CRITICAL)**
+   - **File:** `INFO/skills.md` - Single source of truth for all technical skills
+   - **Implementation:** `app.py` loads skills file on every request and injects into system prompt
+   - **Purpose:** Prevents AI from hallucinating technical skills not explicitly listed
+   - **How it works:**
+     - `load_skills()` function reads `INFO/skills.md`
+     - Content is injected into system prompt via `{SKILLS_CONTENT}` placeholder
+     - AI receives complete, up-to-date skills list with every request
+     - No server restart needed when updating skills
+   - **Skills Categories:**
+     - Programming Languages (with proficiency levels and years of experience)
+     - Frameworks & Libraries
+     - Tools & Technologies
+     - Databases
+     - Security, Risk & Compliance
+     - Consulting, Architecture & Governance
+     - Other Technical Skills
+   - **Strict Rules:** AI can ONLY mention skills from this file - no assumptions, no related technologies
 
-3. **UI Design**
+3. **Anti-Hallucination Rules**
+   - Critical section in system prompt to prevent fabrication
+   - AI must only use information from prompt, CV, and `INFO/skills.md`
+   - Cannot invent projects, experience, achievements, or technical skills
+   - Coding experience is from hobby projects + bachelor degree ONLY (not professional dev roles)
+   - Multiple layers of validation in system prompt
+
+4. **UI Design**
    - No generic purple gradients or Inter font
    - IBM Plex Sans typography with weight extremes (300 + 700)
    - Neon green accent (#9EFFA9) on dark graphite background
@@ -65,6 +135,7 @@ Located in `app.py` as `SYSTEM_PROMPT` variable.
    - **Critical:** Coding experience from hobby projects + bachelor degree only
    - Professional experience: Listed roles at Sopra Steria, Aker Solutions, SpareBank 1
    - 7 GitHub projects (only mention when relevant)
+   - **Technical Skills:** AI MUST reference INFO/skills.md - NEVER mention skills not listed there
 
 3. **JOB AD PARSING RULES**
    - Must extract employer correctly (not job board like finn.no)
@@ -87,8 +158,10 @@ Located in `app.py` as `SYSTEM_PROMPT` variable.
    - Signature: "Sincerely, Tarek Lein"
 
 6. **CRITICAL: ANTI-HALLUCINATION RULES**
-   - Only use info from: candidate section, job ad, CV
+   - Only use info from: candidate section, job ad, CV, INFO/skills.md
+   - **MUST check INFO/skills.md before mentioning ANY technical skill**
    - Never invent: projects, experience, achievements, skills, companies, certifications
+   - Never mention programming languages/frameworks/tools not in INFO/skills.md
    - If no specific info, write generally or omit
 
 7. **STYLE REQUIREMENTS**
@@ -123,7 +196,10 @@ Application-Creator/
 │   └── script.js                  # Frontend logic
 ├── skills/
 │   └── frontend_chatbot_design.md # UI design guidelines
-├── TarekLeinCV.docx               # Candidate CV
+├── INFO/
+│   ├── TarekLeinCV.docx           # Candidate CV
+│   ├── Resultater_fra_Vitnemalsportalen.pdf  # Bachelor degree course results
+│   └── skills.md                  # Technical skills reference
 ├── README.md                      # User documentation
 ├── QUICKSTART.md                  # Quick start guide
 ├── DEVELOPMENT.md                 # This file
@@ -164,6 +240,8 @@ Open browser to: http://localhost:5000
 3. `1d708ec` - Refactor system prompt to cleaner English structure
 4. `07bde5b` - Switch output language to English for better technical term handling
 5. `97dc2ad` - Add strict anti-hallucination rules and clarify coding experience
+6. `bc103ff` - Add comprehensive development context documentation
+7. **(Pending)** - Implement dynamic skills loading system to prevent skill hallucination
 
 ---
 
@@ -226,6 +304,8 @@ Open browser to: http://localhost:5000
 5. **Signature:** Always end with "Sincerely, Tarek Lein"
 6. **Employer Parsing:** finn.no is job board, not employer - parse actual company name
 7. **No Hallucination:** Strict rules - only use provided information
+8. **Skills Reference (CRITICAL):** AI MUST read INFO/skills.md before mentioning ANY technical skill - never claim knowledge of languages/tools not listed there
+9. **Education Records:** INFO/Resultater_fra_Vitnemalsportalen.pdf contains bachelor degree course results
 
 ---
 
@@ -281,6 +361,53 @@ git add .
 git commit -m "message"
 git push
 ```
+
+---
+
+## Quick Reference
+
+### Important Files to Edit
+
+| File | Purpose | When to Edit |
+|------|---------|--------------|
+| `INFO/skills.md` | Technical skills list | Add/remove skills - changes apply immediately |
+| `app.py` | System prompt & backend logic | Modify AI behavior or add features |
+| `static/styles.css` | UI styling | Change appearance |
+| `static/script.js` | Frontend functionality | Modify chat behavior |
+
+### Key Implementation Details
+
+**Skills Loading (app.py:10-16, 248-249)**
+```python
+def load_skills():
+    skills_path = os.path.join('INFO', 'skills.md')
+    try:
+        with open(skills_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return "ERROR: INFO/skills.md not found."
+```
+
+**System Prompt Injection (app.py:248-249)**
+```python
+skills_content = load_skills()
+current_system_prompt = SYSTEM_PROMPT.replace('{SKILLS_CONTENT}', skills_content)
+```
+
+### Critical Constraints
+
+✅ **DO:**
+- Edit `INFO/skills.md` to update technical skills
+- Keep system prompt anti-hallucination rules strict
+- Output in English only (user translates to Norwegian)
+- Use only real experience from prompt/CV/skills file
+
+❌ **DON'T:**
+- Let AI claim skills not in `INFO/skills.md`
+- Allow hallucination of projects, experience, or achievements
+- Treat coding experience as professional (it's hobby/education only)
+- Use job boards (finn.no, LinkedIn) as employer names
+- Output in Norwegian (technical terms get awkwardly translated)
 
 ---
 
